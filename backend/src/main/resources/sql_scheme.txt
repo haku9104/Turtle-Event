@@ -1,0 +1,229 @@
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS participants;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS friends;
+DROP TABLE IF EXISTS to_bring;
+DROP TABLE IF EXISTS to_do;
+DROP TABLE IF EXISTS bringers;
+DROP TABLE IF EXISTS doers;
+
+
+CREATE TABLE events
+(
+    id SERIAL PRIMARY KEY,
+    title varchar not null,
+    description varchar(1000) not null,
+    location varchar not null,
+    from_date date not null,
+    to_date date not null
+);
+
+CREATE TABLE users
+(
+    id SERIAL PRIMARY KEY,
+    user_name varchar not null,
+    first_name varchar not null,
+    last_name varchar not null,
+    email varchar not null,
+    password varchar not null,
+    registered date not null
+);
+
+CREATE TABLE participants
+(
+    user_id int not null,
+    event_id int not null,
+    role varchar not null
+);
+
+CREATE TABLE friends
+(
+    user_id int not null,
+    friend_id int not null
+);
+
+CREATE TABLE messages
+(
+    id SERIAL PRIMARY KEY,
+    user_id int not null,
+    event_id int not null,
+    text varchar not null
+);
+
+CREATE TABLE to_bring
+(
+    id SERIAL PRIMARY KEY,
+    event_id int not null,
+    title varchar,
+    comment varchar(1000),
+    total_amount int not null,
+    sub_amount int not null
+);
+
+CREATE TABLE to_do
+(
+    id SERIAL PRIMARY KEY,
+    event_id int not null,
+    title varchar,
+    comment varchar(1000)
+);
+
+CREATE TABLE bringers
+(
+    id SERIAL PRIMARY KEY,
+    to_bring_id int not null,
+    event_id int not null,
+    user_id int not null,
+    price int not null,
+    amount int not null,
+    attachment varchar
+);
+
+CREATE TABLE doers
+(
+    id SERIAL PRIMARY KEY,
+    to_do_id int not null,
+    event_id int not null,
+    user_id int not null,
+    attachment varchar
+);
+
+
+INSERT INTO events (title, description, location, from_date, to_date) VALUES
+('Poker est', 'Korda Gyurit elhívnánk kommentálni az egyik partynkat', 'Miskolc', '2021-12-18', '2021-12-18'),
+('Pali meglepi buli', 'Palit meglepnénk amikor nem számít rá!', 'Miskolc', '2021-11-10', '2021-11-11'),
+('Szalonnasütés', 'Sziasztok, összejönnénk pár haverral pörgetni egyet, kinek van kedve?', 'Sajókeresztúr', '2021-10-25', '2021-10-25');
+
+INSERT INTO users (user_name, first_name, last_name, email, password, registered) VALUES
+('quador', 'David', 'Fazekas', 'fazekasdavid@posta.hu', 'almafa123', CURRENT_DATE),
+('haku9104', 'Balazs', 'Horvath', 'akarmi@akarmi.hu', 'jelszoXX1122', '2019-10-25'),
+('s1p9', 'Martin', 'Sipos', 'martinka@freemail.hu', '123456PW', '2013-02-10');
+
+INSERT INTO participants (user_id, event_id, role) VALUES
+(1, 3, 'Viewer'),
+(2, 3, 'Viewer'),
+(3, 3, 'Organizer'),
+(1, 1, 'Admin'),
+(2, 1, 'Viewer'),
+(1, 2, 'Organizer'),
+(3, 2, 'Viewer');
+
+INSERT INTO friends (user_id, friend_id) VALUES
+(1, 3),
+(3, 1),
+(2, 3),
+(3, 2),
+(2, 1),
+(1, 2);
+
+INSERT INTO messages (user_id, event_id, text) VALUES
+(1, 3, 'Jaja de várom!'),
+(3, 1, 'Jó lesz'),
+(2, 3, 'Hurrá!!!!!!!4'),
+(3, 2, 'Kecskét vehetek-é?'),
+(2, 1, 'Csak nehogy ott legyen Haku.'),
+(1, 2, 'Nem fog esni');
+
+INSERT INTO to_bring (event_id, title, comment, total_amount, sub_amount) VALUES
+(1, 'Virsli', 'null', 10, 6),
+(1, 'Bor', 'vöröset pls', 30, 17),
+(1, 'lufi', 'piros-fekete (milan)', 7, 7),
+(2, 'tányér', 'null', 10, 0),
+(2, 'hangszoró', 'bluetooth hangszoro kell', 2, 0),
+(3, 'nyárs', 'null', 6, 6);
+
+INSERT INTO bringers (to_bring_id, event_id, user_id, price, amount, attachment) VALUES
+(1, 1, 1, 600, 4, 'tesco spar szamla.jpg'),
+(1, 1, 3, 300, 2, 'virlsi spar szamla.jpg'),
+(2, 1, 1, 3890, 17, 'null'),
+(3, 1, 2, 250, 3, 'null'),
+(3, 1, 3, 400, 4, 'null'),
+(6, 3, 2, 0, 6, 'nyarsak.jpg');
+
+INSERT INTO to_do (event_id, title, comment) VALUES
+(1, 'Előfőzni a virslit', 'null'),
+(2, 'Elmosni a tányérokat', 'null'),
+(2, 'Feltölteni a hangszórót', 'powerbank sem ártana talán'),
+(3, 'Fát aprítani', 'null'),
+(3, 'Kihamuzni', '(ha kell)'),
+(3, 'Bepakolni a szúnyogírtót', 'null');
+
+INSERT INTO doers (to_do_id, event_id, user_id, attachment) VALUES
+(2, 2, 3, 'null'),
+(4, 3, 1, 'kesz a fa.jpg'),
+(5, 3, 1, 'null'),
+(6, 3, 2, 'null');
+
+
+ALTER TABLE participants
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE participants
+    ADD CONSTRAINT user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE friends
+    ADD CONSTRAINT user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE messages
+    ADD CONSTRAINT user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE messages
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE to_bring
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE to_do
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE doers
+    ADD CONSTRAINT user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE doers
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE doers
+    ADD CONSTRAINT to_do_id_fk
+        FOREIGN KEY (to_do_id)
+            REFERENCES to_do(id);
+
+ALTER TABLE bringers
+    ADD CONSTRAINT user_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE bringers
+    ADD CONSTRAINT event_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE bringers
+    ADD CONSTRAINT to_bring_id_fk
+        FOREIGN KEY (to_bring_id)
+            REFERENCES to_bring(id);

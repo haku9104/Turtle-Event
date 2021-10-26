@@ -1,0 +1,89 @@
+DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS events_users_roles;
+
+CREATE TABLE events
+(
+    id integer not null,
+    name  varchar not null,
+    description varchar not null,
+    location varchar not null,
+    frome_date date not null,
+    to_date date not null,
+    stuff_to_bring varchar,
+    stuff_to_do varchar,
+    participants varchar
+);
+
+CREATE TABLE users
+(
+    id integer not null,
+    user_name varchar not null,
+    first_name varchar not null,
+    last_name varchar not null,
+    email varchar not null,
+    password varchar not null,
+    registered date not null
+);
+
+CREATE TABLE roles
+(
+    id int not null,
+    type varchar not null
+);
+
+CREATE TABLE events_users_roles
+(
+    event_id int not null,
+    user_id int not null,
+    role_id int not null
+);
+
+INSERT INTO public.events (id, name, description, frome_date, to_date, stuff_to_bring, stuff_to_do, participants) VALUES
+(1, 'teszt event', 'Andorra', CURRENT_DATE, CURRENT_DATE, 'alma', 'fa vágás', 'Pista'),
+(2, 'Ozora', 'Lesz is', CURRENT_DATE, CURRENT_DATE, 'körte', 'sátor állítás', 'Jakab');
+
+INSERT INTO public.roles (id, type) VALUES
+(1, 'Organizer'),
+(2, 'Organizer'),
+(3, 'Visitor');
+
+INSERT INTO public.users (id, user_name, first_name, last_name, email, password, registered) VALUES
+(1, 'quador', 'David', 'Fazekas', 'fazekasdavidpostalada@posta.hu', 'almafa123', CURRENT_DATE),
+(2, 'haku9104', 'Balazs', 'Horvath', 'akarmi@akarmi.hu', 'jelszoXX1122', '2019-10-25'),
+(3, 's1p9', 'Martin', 'Sipos', 'martinka@freemail.hu', '123456PW', '2013-02-10');
+
+
+ALTER TABLE events ADD PRIMARY KEY (id);
+ALTER TABLE users ADD PRIMARY KEY (id);
+ALTER TABLE roles ADD PRIMARY KEY (id);
+
+ALTER TABLE events_users_roles
+    ADD CONSTRAINT events_id_fk
+        FOREIGN KEY (event_id)
+            REFERENCES events(id);
+
+ALTER TABLE events_users_roles
+    ADD CONSTRAINT users_id_fk
+        FOREIGN KEY (user_id)
+            REFERENCES users(id);
+
+ALTER TABLE events_users_roles
+    ADD CONSTRAINT roles_id_fk
+        FOREIGN KEY (role_id)
+            REFERENCES roles(id);
+
+INSERT INTO events (id, name, description, location, frome_date, to_date, stuff_to_bring, stuff_to_do, participants) VALUES
+(1, 'teszt event', 'Andorra', 'Miskolc', CURRENT_DATE, CURRENT_DATE, 'alma', 'fa vágás', 'Pista'),
+(2, 'Ozora', 'Lesz is', 'Budapest', CURRENT_DATE, CURRENT_DATE, 'körte', 'sátor állítás', 'Jakab');
+
+INSERT INTO roles (id, type) VALUES
+(1, 'Organizer'),
+(2, 'Organizer'),
+(3, 'Visitor');
+
+INSERT INTO users (id, user_name, first_name, last_name, email, password, registered) VALUES
+(1, 'quador', 'David', 'Fazekas', 'fazekasdavidpostalada@posta.hu', 'almafa123', CURRENT_DATE),
+(2, 'haku9104', 'Balazs', 'Horvath', 'akarmi@akarmi.hu', 'jelszoXX1122', '2019-10-25'),
+(3, 's1p9', 'Martin', 'Sipos', 'martinka@freemail.hu', '123456PW', '2013-02-10');
